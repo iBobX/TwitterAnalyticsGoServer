@@ -23,8 +23,7 @@ import (
     Declaraciones globales
 -----------------------------*/
 
-//const pathToVisualizacionesPy = "/usr/local/go/workspace/servidor/visualizaciones.py"
-const pathToVisualizacionesPy = "/Users/roberto/Google Drive/Documents/Programming/DataScience/PythonProjects/TwitterAnalyticsPythonScript/visualizaciones.py"
+const pathToVisualizacionesPy = "/usr/local/go/workspace/servidor/visualizaciones.py"
 
 //Estructuras
 type serverRequestHandler struct{}
