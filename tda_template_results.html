@@ -38,7 +38,7 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-6">
             <div class="card" style="min-height:368px; margin:1rem;">
                 <a href="data:image/jpg;base64,{{img_activeusers}}" data-fancybox="statisticsimgs" data-caption="This word cloud image shows you the most active users 'screen names' that have been twitting content related to your search. The bigger the screen name is, the more actively that user is been twitting about your search keywords." >
                   <img class="card-img-top" data-widht="800" data-height="400" src="data:image/jpg;base64,{{img_activeusers}}" alt="">
@@ -49,7 +49,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-6">
             <div class="card" style="min-height:368px; margin:1rem;">
                 <a href="data:image/jpg;base64,{{img_muwords}}" data-fancybox="statisticsimgs" data-caption="This word cloud shows you the most used 'words' found in all a tweets. The bigger the word is, the more 'relevant' that word is been." >
                   <img class="card-img-top" data-widht="800" data-height="400" src="data:image/jpg;base64,{{img_muwords}}" alt="">
@@ -60,7 +60,9 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+      </div>
+      <div class="row">
+        <div class="col-md-6">
             <div class="card" style="min-height:368px; margin:1rem;">
                 <a href="data:image/jpg;base64,{{img_hashtags}}" data-fancybox="statisticsimgs" data-caption="This word cloud shows you the most relevant 'hashtags' found in all tweets results of your search. The bigger the word is, the more 'trendy' that hashtag is been on Twitter." >
                   <img class="card-img-top" data-widht="800" data-height="400" src="data:image/jpg;base64,{{img_hashtags}}" alt="">
@@ -70,6 +72,17 @@
                     <p class="card-text">This word cloud shows you the most relevant "hashtags" found in all tweets results of your search. The bigger the word is, the more "trendy" that hashtag is been on Twitter.</p>
                 </div>
             </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card" style="min-height:368px; margin:1rem;">
+              <a href="data:image/jpg;base64,{{img_langs}}" data-fancybox="statisticsimgs" data-caption="This histogram shows you the most relevant 'languages' tweets in which tweets were written." >
+                <img class="card-img-top" data-widht="800" data-height="400" src="data:image/jpg;base64,{{img_langs}}" alt="">
+              </a>
+              <div class="card-body">
+                  <h4 class="card-title">Most Relevants Languages</h4>
+                  <p class="card-text">This histogram shows you the most relevant "languages" tweets in which tweets were written.</p>
+              </div>
+          </div>
         </div>
       </div>
     </div>

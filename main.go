@@ -1,7 +1,7 @@
 package main
 
 /* ----------------------------
-    Librerías
+Librerías
 -----------------------------*/
 import (
 	"bufio"
@@ -20,7 +20,7 @@ import (
 )
 
 /* ----------------------------
-    Declaraciones globales
+Declaraciones globales
 -----------------------------*/
 
 const pathToVisualizacionesPy = "/usr/local/go/workspace/servidor/visualizaciones.py"
@@ -54,7 +54,7 @@ type PyJSONResponse struct {
 }
 
 /* ----------------------------
-    Funciones
+Funciones
 -----------------------------*/
 
 //Convertir JSON retornado por Python a un array
@@ -95,22 +95,22 @@ func (h serverRequestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 				fmt.Println("Error reading search html template file:", err)
 			}
 			//declaro variable string
-			var replace_by string
+			var replaceBy string
 			//si encuentro error 1 en url
 			if r.URL.Query().Get("err") == "1" {
 				//significa que no se econtraron resultados
-				replace_by = "<div class=\"alert alert-warning\"><strong>Alert: </strong> No results found.</div>"
+				replaceBy = "<div class=\"alert alert-warning\"><strong>Alert: </strong> No results found.</div>"
 			} else {
 				//entonces no hubo errores
-				replace_by = ""
+				replaceBy = ""
 			}
 			//remplazo el placeholder de mensajes con lo que haya quedado
-			replace_messages := bytes.Replace(searchHTMLFile, []byte("{{messages}}"), []byte(replace_by), -1)
+			replaceMessages := bytes.Replace(searchHTMLFile, []byte("{{messages}}"), []byte(replaceBy), -1)
 			//envío headers al navegador para decirle que va un html
 			w.Header().Set("Content-Type", "text/html")
 			//mando el html al navegador después
 			//de type-castearlo a un byte array
-			w.Write([]byte(replace_messages))
+			w.Write([]byte(replaceMessages))
 
 			//Si el request es desconocido
 		} else {
@@ -143,46 +143,56 @@ func (h serverRequestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 					//que es lo que hace "TempFile"
 
 					//Primer temporal que contendrá la imágen wordcloud de screen names mas activos
-					tmp_img_activeusers, err := ioutil.TempFile(os.TempDir(), "actusrs")
+					tmpImgActiveusers, err := ioutil.TempFile(os.TempDir(), "actusrs")
 					//si ocurre un erro
 					if err != nil {
 						//haceme llorar
 						fmt.Println("Error creating temp actusrs img file:", err)
 					}
 					//creo segundo temporal que contendrá imagen wordcloud de palabras mas relevantes
-					tmp_img_muwords, err := ioutil.TempFile(os.TempDir(), "muwords")
+					tmpImgMuwords, err := ioutil.TempFile(os.TempDir(), "muwords")
 					if err != nil {
 						//haceme llorar
 						fmt.Println("Error creating temp muwords img file:", err)
 					}
 
 					//creo tercer temporal que contendrá imagen wordcloud de hastags mas relevantes
-					tmp_img_hashtags, err := ioutil.TempFile(os.TempDir(), "hashtags")
+					tmpImgHashtags, err := ioutil.TempFile(os.TempDir(), "hashtags")
 					if err != nil {
 						//haceme llorar
 						fmt.Println("Error creating temp hashtags img file:", err)
 					}
 
+					//creo tercer temporal que contendrá imagen de idiomas mas relevantes
+					tmpImgLangs, err := ioutil.TempFile(os.TempDir(), "langs")
+					if err != nil {
+						//haceme llorar
+						fmt.Println("Error creating temp langs img file:", err)
+					}
+
 					//ya con los archivos temporales,
 					//leo el path y nombre de los archivos completos
-					path_img_activeusers := tmp_img_activeusers.Name()
-					path_img_muwords := tmp_img_muwords.Name()
-					path_img_hashtags := tmp_img_hashtags.Name()
+					pathImgActiveusers := tmpImgActiveusers.Name()
+					pathImgMuwords := tmpImgMuwords.Name()
+					pathImgHashtags := tmpImgHashtags.Name()
+					pathImgLangs := tmpImgLangs.Name()
 
 					//Teniendo los nombres únicos
 					//Cierro los archivos y borro antes de
 					//llamar a Python
-					tmp_img_activeusers.Close()
-					tmp_img_muwords.Close()
-					tmp_img_hashtags.Close()
-					os.Remove(path_img_activeusers)
-					os.Remove(path_img_muwords)
-					os.Remove(path_img_hashtags)
+					tmpImgActiveusers.Close()
+					tmpImgMuwords.Close()
+					tmpImgHashtags.Close()
+					os.Remove(pathImgActiveusers)
+					os.Remove(pathImgMuwords)
+					os.Remove(pathImgHashtags)
+					os.Remove(pathImgLangs)
 
 					//a los nombres únicos, le adjunto extension
-					path_img_activeusers += ".png"
-					path_img_muwords += ".png"
-					path_img_hashtags += ".png"
+					pathImgActiveusers += ".png"
+					pathImgMuwords += ".png"
+					pathImgHashtags += ".png"
+					pathImgLangs += ".png"
 
 					//Ejecuto el script con Visualizaciones.py
 					//pasándole el keyword, y los nombres de los dos
@@ -190,9 +200,10 @@ func (h serverRequestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 					cmdName := "python3"
 					cmdArgs := []string{pathToVisualizacionesPy,
 						strValue,
-						path_img_activeusers,
-						path_img_muwords,
-						path_img_hashtags}
+						pathImgActiveusers,
+						pathImgMuwords,
+						pathImgHashtags,
+						pathImgLangs}
 					//Instancio el exec
 					cmd := exec.Command(cmdName, cmdArgs...)
 					//creo un buffer para poder leer del stdout
@@ -227,7 +238,7 @@ func (h serverRequestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 						//Abro las imágenes
 						//cargo la imágen wordcloud de screen names que se creó con python
 						//usando el nombre temporal creado anteiormente
-						file_img_activeusers, err := os.Open(path_img_activeusers)
+						fileImgActiveusers, err := os.Open(pathImgActiveusers)
 						//si hay error
 						if err != nil {
 							//y bueno, así es la vida
@@ -237,70 +248,93 @@ func (h serverRequestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 							//pero ahora not engo ganas
 						}
 						//creo bufer para leer la imágen binaria
-						fActiveusersInfo, _ := file_img_activeusers.Stat()
-						var fActiveusersFileSize int64 = fActiveusersInfo.Size()
+						fActiveusersInfo, _ := fileImgActiveusers.Stat()
+						fActiveusersFileSize := fActiveusersInfo.Size()
 						fActiveusersInfoBuf := make([]byte, fActiveusersFileSize)
 						//cargo la imagen en el bufer
-						fActiveusersReader := bufio.NewReader(file_img_activeusers)
+						fActiveusersReader := bufio.NewReader(fileImgActiveusers)
 						fActiveusersReader.Read(fActiveusersInfoBuf)
 						//convierto bufer a un string base64
 						fActiveusersBase64Str := base64.StdEncoding.EncodeToString(fActiveusersInfoBuf)
 						//cierro el binario y borro el archivo de imágen
-						file_img_activeusers.Close()
-						os.Remove(path_img_activeusers)
+						fileImgActiveusers.Close()
+						os.Remove(pathImgActiveusers)
 
 						//cargo la imágen wordcloud de las palabras mas usadas que se creó con python
 						//usando el nombre temporal creado anteiormente
-						file_img_muwords, err := os.Open(path_img_muwords)
+						fileImgMuwords, err := os.Open(pathImgMuwords)
 						//si da error
 						if err != nil {
 							//ya esto es un caos
 							fmt.Println("Error opening muwords image:", err)
 						}
 						//creo bufer para leer la imágen binaria
-						fMostUsedWordsInfo, _ := file_img_muwords.Stat()
-						var fMostUsedWordsFileSize int64 = fMostUsedWordsInfo.Size()
+						fMostUsedWordsInfo, _ := fileImgMuwords.Stat()
+						fMostUsedWordsFileSize := fMostUsedWordsInfo.Size()
 						fMostUsedWordsInfoBuf := make([]byte, fMostUsedWordsFileSize)
 						//cargo imagen en bufer
-						fUsedWordsReadere := bufio.NewReader(file_img_muwords)
-						fUsedWordsReadere.Read(fMostUsedWordsInfoBuf)
+						fUsedWordsReader := bufio.NewReader(fileImgMuwords)
+						fUsedWordsReader.Read(fMostUsedWordsInfoBuf)
 						//convierto el bufer a un string encodeado a base64
 						fMostUsedWordsBase64Str := base64.StdEncoding.EncodeToString(fMostUsedWordsInfoBuf)
 						//cierro y borro archivos para que no queden en el servidor
-						file_img_muwords.Close()
-						os.Remove(path_img_muwords)
+						fileImgMuwords.Close()
+						os.Remove(pathImgMuwords)
 
 						//cargo la imágen wordcloud de los hashtags mas relevantes que se creó con python
 						//usando el nombre temporal creado anteiormente
-						file_img_hashtags, err := os.Open(path_img_hashtags)
+						fileImgHashtags, err := os.Open(pathImgHashtags)
 						//si da error
 						if err != nil {
 							//que me importa
 							fmt.Println("Error opening hashtags image:", err)
 						}
 						//creo bufer para leer la imágen binaria
-						fHashTagsInfo, _ := file_img_hashtags.Stat()
-						var fHashTagsFileSize int64 = fHashTagsInfo.Size()
+						fHashTagsInfo, _ := fileImgHashtags.Stat()
+						fHashTagsFileSize := fHashTagsInfo.Size()
 						fHashTagsInfoBuf := make([]byte, fHashTagsFileSize)
 						//cargo imagen en bufer
-						fHashTagsReadere := bufio.NewReader(file_img_hashtags)
-						fHashTagsReadere.Read(fHashTagsInfoBuf)
+						fHashTagsReader := bufio.NewReader(fileImgHashtags)
+						fHashTagsReader.Read(fHashTagsInfoBuf)
 						//convierto el bufer a un string encodeado a base64
 						fHashTagsBase64Str := base64.StdEncoding.EncodeToString(fHashTagsInfoBuf)
 						//cierro y borro archivos para que no queden en el servidor
-						file_img_hashtags.Close()
-						os.Remove(path_img_hashtags)
+						fileImgHashtags.Close()
+						os.Remove(pathImgHashtags)
+
+						//cargo la imágen histograma de idiomas mas usados que se creó con python
+						//usando el nombre temporal creado anteiormente
+						fileImgLangs, err := os.Open(pathImgLangs)
+						//si da error
+						if err != nil {
+							//ya esto es un caos
+							fmt.Println("Error opening langs image:", err)
+						}
+						//creo bufer para leer la imágen binaria
+						fLangsInfo, _ := fileImgLangs.Stat()
+						fLangsFileSize := fLangsInfo.Size()
+						fLangsInfoBuf := make([]byte, fLangsFileSize)
+						//cargo imagen en bufer
+						fLangsReader := bufio.NewReader(fileImgLangs)
+						fLangsReader.Read(fLangsInfoBuf)
+						//convierto el bufer a un string encodeado a base64
+						fLangs64Str := base64.StdEncoding.EncodeToString(fLangsInfoBuf)
+						//cierro y borro archivos para que no queden en el servidor
+						fileImgLangs.Close()
+						os.Remove(pathImgLangs)
 
 						//A continuación remplazo las marcas en el template por el contenido del string base65
 						//remplazo marca con imagen de activeusers
-						replace_activeusers := bytes.Replace(resultsHTMLFile, []byte("{{img_activeusers}}"), []byte(fActiveusersBase64Str), -1)
+						replaceActiveusers := bytes.Replace(resultsHTMLFile, []byte("{{img_activeusers}}"), []byte(fActiveusersBase64Str), -1)
 						//remplazo marca con imagen de most used words
-						replace_muwords := bytes.Replace(replace_activeusers, []byte("{{img_muwords}}"), []byte(fMostUsedWordsBase64Str), -1)
+						replaceMuwords := bytes.Replace(replaceActiveusers, []byte("{{img_muwords}}"), []byte(fMostUsedWordsBase64Str), -1)
 						//remplazo marca con imagen de HashTags mas relevantes
-						replace_hashtags := bytes.Replace(replace_muwords, []byte("{{img_hashtags}}"), []byte(fHashTagsBase64Str), -1)
+						replaceHashtags := bytes.Replace(replaceMuwords, []byte("{{img_hashtags}}"), []byte(fHashTagsBase64Str), -1)
+						//remplazo marca con imagen histograma de idiomas mas relevantes
+						replaceLangs := bytes.Replace(replaceHashtags, []byte("{{img_langs}}"), []byte(fLangs64Str), -1)
 
 						//genero imágenes de tuits
-						var tweets_image_gallery_html string
+						var tweetsImageGalleryHTML string
 						//parseo json
 						resultData, err := parsePyJSON([]byte(outputData))
 						if err != nil {
@@ -312,23 +346,23 @@ func (h serverRequestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 								//recorrro las imágenes encontradas para generar html
 								for _, imageURL := range imagesAndURLS.Images {
 									//agrego html con link a imágen y url para visitar el tuit
-									tweets_image_gallery_html += `
-									<div class="col-lg-3 col-md-4 col-xs-6">
-										<a href="` + imageURL + `" class="d-block mb-4 h-100" data-fancybox="gallery" data-caption="<a href='` + imagesAndURLS.URL + `' target='_blank'>Click/Tap Here To View Tweet</a>">
-											<img class="img-fluid img-thumbnail" src="` + imageURL + `" alt="">
-										</a>
-									</div>
-									`
+									tweetsImageGalleryHTML += `
+<div class="col-lg-3 col-md-4 col-xs-6">
+<a href="` + imageURL + `" class="d-block mb-4 h-100" data-fancybox="gallery" data-caption="<a href='` + imagesAndURLS.URL + `' target='_blank'>Click/Tap Here To View Tweet</a>">
+<img class="img-fluid img-thumbnail" src="` + imageURL + `" alt="">
+</a>
+</div>
+`
 								}
 							}
 						}
 						//remplazo marca con html para galería de imágenes de tuits
-						final_result := bytes.Replace(replace_hashtags, []byte("{{tweets_image_gallery}}"), []byte(tweets_image_gallery_html), -1)
+						finalResult := bytes.Replace(replaceLangs, []byte("{{tweets_image_gallery}}"), []byte(tweetsImageGalleryHTML), -1)
 
 						//envío headers al navegador para decirle que va un html
 						w.Header().Set("Content-Type", "text/html")
 						//Y por último envío el contenido HTML
-						w.Write(final_result)
+						w.Write(finalResult)
 					}
 				} else {
 					//en caso de haber estado vacío el value de keyword
